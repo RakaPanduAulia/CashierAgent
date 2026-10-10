@@ -1,0 +1,1007 @@
+/* ==========================================================================
+   KASIR PINTAR STYLE DESIGN SYSTEM - SLIM, MODERN & CLEAN
+   ========================================================================== */
+
+:root {
+  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  
+  /* Kasir Pintar Brand Colors (Signature Forest/Emerald Green) */
+  --primary: #0A6E51;
+  --primary-hover: #085841;
+  --primary-light: #E6F4F0;
+  --primary-border: #A3D9C9;
+  --primary-dark: #064030;
+
+  --accent-gold: #D97706;
+  --accent-gold-light: #FEF3C7;
+  
+  /* Semantic Colors */
+  --success: #10B981;
+  --success-light: #ECFDF5;
+  --warning: #F59E0B;
+  --warning-light: #FFFBEB;
+  --danger: #EF4444;
+  --danger-light: #FEF2F2;
+
+  /* Neutral Background & Text Colors */
+  --bg-app: #F8F9FA;
+  --bg-surface: #FFFFFF;
+  --bg-muted: #F1F3F5;
+  --border-color: #E2E8F0;
+  --border-light: #EDF2F7;
+
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #8E9BAE;
+  --text-light: #FFFFFF;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  --base-font-size: 15px;
+  --font-scale: 1;
+}
+
+html.font-normal {
+  --base-font-size: 14px;
+  --font-scale: 0.95;
+}
+
+html.font-large {
+  --base-font-size: 16px;
+  --font-scale: 1.05;
+}
+
+html.font-extralarge {
+  --base-font-size: 18px;
+  --font-scale: 1.2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--base-font-size);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  overflow-x: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 540px; /* Slim mobile layout standard */
+  margin: 0 auto;
+  background-color: var(--bg-surface);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  padding: 12px 16px;
+  padding-bottom: 85px;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   KASIR PINTAR TOP APP BAR (SLIM HEADER)
+   ========================================================================== */
+
+.kp-header {
+  background: #FFFFFF;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.kp-header-title {
+  font-size: calc(1.1rem * var(--font-scale));
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kp-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kp-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius-full);
+  transition: background-color 0.15s ease;
+}
+
+.kp-icon-btn:hover {
+  background-color: var(--primary-light);
+}
+
+.kp-circle-badge-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+
+/* Sub-action bar (Search, Scanner, All Item dropdown) */
+.kp-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-light);
+  background-color: #FFFFFF;
+  gap: 10px;
+}
+
+.kp-subbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--primary);
+}
+
+.kp-dropdown-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: calc(0.85rem * var(--font-scale));
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   SLIM PRODUCT LIST (KASIR PINTAR STYLE)
+   ========================================================================== */
+
+.kp-product-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.kp-product-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  background-color: #FFFFFF;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.kp-product-item:active {
+  background-color: var(--primary-light);
+}
+
+.kp-product-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+/* Initials thumbnail box (e.g. "KA", "TB") */
+.kp-avatar-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background-color: #F1F4F8;
+  color: #7B8BA0;
+  font-weight: 800;
+  font-size: calc(0.95rem * var(--font-scale));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  border: 1px solid #E2E8F0;
+}
+
+.kp-product-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kp-product-name {
+  font-weight: 700;
+  font-size: calc(0.98rem * var(--font-scale));
+  color: var(--text-primary);
+}
+
+.kp-product-price {
+  font-size: calc(0.88rem * var(--font-scale));
+  color: #64748B;
+  font-weight: 600;
+}
+
+.kp-product-stock-badge {
+  font-size: calc(0.72rem * var(--font-scale));
+  color: var(--primary);
+  font-weight: 700;
+  background-color: var(--primary-light);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.kp-cart-counter-pill {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   FLOATING CART BAG BUTTON (CIRCULAR FLOATING BUTTON)
+   ========================================================================== */
+
+.kp-floating-bag-btn {
+  position: fixed;
+  bottom: 85px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(10, 110, 81, 0.4);
+  cursor: pointer;
+  z-index: 45;
+  border: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kp-floating-bag-btn:hover {
+  transform: scale(1.08);
+}
+
+.kp-floating-bag-btn:active {
+  transform: scale(0.94);
+}
+
+.kp-floating-bag-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #EF4444;
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  border: 2px solid #FFFFFF;
+}
+
+/* ==========================================================================
+   KASIR PINTAR BOTTOM NAV
+   ========================================================================== */
+
+.kp-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 540px;
+  margin: 0 auto;
+  background-color: #FFFFFF;
+  border-top: 1px solid var(--border-color);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  height: 64px;
+}
+
+.kp-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  gap: 3px;
+  transition: color 0.15s ease;
+}
+
+.kp-nav-btn.active {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.kp-nav-label {
+  font-size: calc(0.72rem * var(--font-scale));
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   LONG PRESS FLOATING QUANTITY MODAL
+   ========================================================================== */
+
+.kp-qty-modal-box {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.kp-qty-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.kp-qty-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border: 1.5px solid var(--primary-border);
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kp-qty-input {
+  width: 90px;
+  height: 52px;
+  font-size: calc(1.5rem * var(--font-scale));
+  font-weight: 900;
+  text-align: center;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+}
+
+.kp-qty-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* ==========================================================================
+   SLIM CART SCREEN (SCREENSHOT 4 STYLE)
+   ========================================================================== */
+
+.kp-cart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: #FFFFFF;
+}
+
+.kp-cart-total-badge {
+  font-size: calc(1.2rem * var(--font-scale));
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.kp-cart-check-btn {
+  width: 42px;
+  height: 42px;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.kp-cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.kp-cart-qty-box {
+  border: 1.5px solid #CBD5E1;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-weight: 800;
+  font-size: calc(0.95rem * var(--font-scale));
+  color: var(--text-primary);
+  min-width: 38px;
+  text-align: center;
+}
+
+/* ==========================================================================
+   SUCCESS CHECKOUT SCREEN (SCREENSHOT 1 STYLE)
+   ========================================================================== */
+
+.kp-success-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.kp-success-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #4CAF50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.25);
+}
+
+.kp-success-title {
+  font-size: calc(1.4rem * var(--font-scale));
+  font-weight: 800;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.kp-success-subtitle {
+  font-size: calc(1.05rem * var(--font-scale));
+  color: #6B7280;
+  margin-bottom: 24px;
+}
+
+.kp-change-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 360px;
+  padding: 12px 4px;
+  margin-bottom: 28px;
+  font-size: calc(1.2rem * var(--font-scale));
+  font-weight: 700;
+  color: #4B5563;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.kp-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.kp-btn-primary {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-weight: 800;
+  font-size: calc(1rem * var(--font-scale));
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.kp-btn-outline {
+  background-color: #FFFFFF;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: calc(0.95rem * var(--font-scale));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* ==========================================================================
+   THERMAL RECEIPT PAPER WITH JAGGED TEAR EDGES (SCREENSHOT 3 STYLE)
+   ========================================================================== */
+
+.kp-receipt-wrapper {
+  background-color: #C0C4CC;
+  padding: 24px 14px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kp-receipt-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 16px;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.kp-receipt-paper {
+  background: #FFFFFF;
+  width: 100%;
+  max-width: 380px;
+  padding: 24px 20px;
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  position: relative;
+  /* Jagged zigzag tear edges effect */
+  clip-path: polygon(
+    0% 0%, 5% 4px, 10% 0%, 15% 4px, 20% 0%, 25% 4px, 30% 0%, 35% 4px, 40% 0%, 45% 4px, 50% 0%, 55% 4px, 60% 0%, 65% 4px, 70% 0%, 75% 4px, 80% 0%, 85% 4px, 90% 0%, 95% 4px, 100% 0%,
+    100% 100%, 95% calc(100% - 4px), 90% 100%, 85% calc(100% - 4px), 80% 100%, 75% calc(100% - 4px), 70% 100%, 65% calc(100% - 4px), 60% 100%, 55% calc(100% - 4px), 50% 100%, 45% calc(100% - 4px), 40% 100%, 35% calc(100% - 4px), 30% 100%, 25% calc(100% - 4px), 20% 100%, 15% calc(100% - 4px), 10% 100%, 5% calc(100% - 4px), 0% 100%
+  );
+}
+
+.kp-receipt-dashed {
+  border-top: 1px dashed #333333;
+  margin: 10px 0;
+}
+
+/* ==========================================================================
+   SALES SUMMARY REPORT (SCREENSHOT 2 STYLE)
+   ========================================================================== */
+
+.kp-report-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  color: var(--primary);
+  font-weight: 800;
+  font-size: calc(1.15rem * var(--font-scale));
+}
+
+.kp-date-picker-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  color: var(--primary);
+  font-weight: 700;
+  background-color: #FFFFFF;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.kp-metric-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.kp-metric-icon-box {
+  width: 50px;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kp-metric-content {
+  flex: 1;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kp-metric-number {
+  font-size: calc(1.35rem * var(--font-scale));
+  font-weight: 800;
+  color: #334155;
+  line-height: 1.2;
+}
+
+.kp-metric-label {
+  font-size: calc(0.85rem * var(--font-scale));
+  color: #64748B;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.kp-metric-badge {
+  font-size: calc(0.75rem * var(--font-scale));
+  font-weight: 700;
+  color: #334155;
+  text-align: right;
+}
+
+.kp-report-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background-color: #E2E8F0;
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin: 16px 0;
+}
+
+.kp-report-tab-btn {
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: #64748B;
+  font-weight: 700;
+  font-size: calc(0.8rem * var(--font-scale));
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: center;
+}
+
+.kp-report-tab-btn.active {
+  background-color: var(--primary);
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   SEARCH BAR MODAL / OVERLAY
+   ========================================================================== */
+
+.kp-search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #F1F5F9;
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.kp-search-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: calc(0.95rem * var(--font-scale));
+  font-family: inherit;
+  color: var(--text-primary);
+}
+
+.kp-search-input:focus {
+  outline: none;
+}
+
+/* App Header on sub-tabs */
+.app-header {
+  background: var(--primary);
+  color: #FFFFFF;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-title-box h1 {
+  font-size: calc(1rem * var(--font-scale));
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.header-title-box p {
+  font-size: calc(0.75rem * var(--font-scale));
+  opacity: 0.9;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.font-size-toggle {
+  display: flex;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 3px;
+  border-radius: var(--radius-full);
+}
+
+.font-size-btn {
+  border: none;
+  background: transparent;
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.font-size-btn.active {
+  background: white;
+  color: var(--primary);
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+.modal-content {
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  max-width: 520px;
+  width: 100%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #FAFAFA;
+}
+
+.modal-title {
+  font-size: calc(1.15rem * var(--font-scale));
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background-color: #FAFAFA;
+}
+
+/* Standard Inputs & Buttons */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.input-label {
+  font-size: calc(0.85rem * var(--font-scale));
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.input-field, .select-field, .textarea-field {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: calc(0.95rem * var(--font-scale));
+  font-family: inherit;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: #FFFFFF;
+  color: var(--text-primary);
+}
+
+.input-field:focus, .select-field:focus, .textarea-field:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: calc(0.9rem * var(--font-scale));
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #FFFFFF;
+}
+
+.btn-success {
+  background-color: var(--success);
+  color: #FFFFFF;
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: #FFFFFF;
+}
+
+.btn-warning {
+  background-color: var(--warning);
+  color: #FFFFFF;
+}
+
+.btn-outline {
+  background: #FFFFFF;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-lg {
+  padding: 14px 20px;
+  font-size: calc(1rem * var(--font-scale));
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: calc(0.8rem * var(--font-scale));
+}
+
+.btn-icon-only {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.stat-card.blue { border-left: 4px solid var(--primary); }
+.stat-card.green { border-left: 4px solid var(--success); }
+.stat-card.purple { border-left: 4px solid #7C3AED; }
+.stat-card.amber { border-left: 4px solid var(--warning); }
+.stat-card.rose { border-left: 4px solid var(--danger); }
+
+.stat-label {
+  font-size: calc(0.75rem * var(--font-scale));
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: calc(1.3rem * var(--font-scale));
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.stat-subtext {
+  font-size: calc(0.72rem * var(--font-scale));
+  color: var(--text-muted);
+}
+
