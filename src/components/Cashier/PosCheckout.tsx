@@ -2,10 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Search,
   Plus,
-  QrCode,
-  Star,
-  MoreVertical,
-  Menu,
   ShoppingBag,
   X
 } from 'lucide-react';
@@ -20,7 +16,7 @@ import { ReceiptModal } from './ReceiptModal';
 import { ProductFormModal } from '../Inventory/ProductFormModal';
 
 export const PosCheckout: React.FC = () => {
-  const { cart, addToCart, updateCartQty, cartTotal } = useStore();
+  const { storeProfile, cart, addToCart, updateCartQty, cartTotal } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -30,8 +26,9 @@ export const PosCheckout: React.FC = () => {
   const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
-  // Long press modal state
+  // Long press modal state & Pointer Events tracker (anti double-tap bug)
   const [longPressProduct, setLongPressProduct] = useState<Product | null>(null);
+  const pointerDownTimeRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLongPressRef = useRef(false);
 
@@ -44,11 +41,9 @@ export const PosCheckout: React.FC = () => {
     loadProducts();
   }, [completedTransaction]);
 
-  // Kategori
   const rawCategories = Array.from(new Set(products.map((p) => p.category)));
   const categories = ['All item', ...rawCategories];
 
-  // Filter produk
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -57,34 +52,44 @@ export const PosCheckout: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  // Long press event handlers
-  const handleTouchStart = (product: Product) => {
+  // Pointer event handlers: unified for touch and mouse, preventing Android double-trigger!
+  const handlePointerDown = (e: React.PointerEvent, product: Product) => {
+    // Only primary touch/click
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+
     isLongPressRef.current = false;
+    pointerDownTimeRef.current = Date.now();
+
     timerRef.current = setTimeout(() => {
       isLongPressRef.current = true;
       setLongPressProduct(product);
-    }, 450); // 450ms trigger long press
+    }, 450); // 450ms triggers floating quantity modal
   };
 
-  const handleTouchEnd = (product: Product) => {
+  const handlePointerUp = (product: Product) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    // Jika bukan long press, jalankan klik normal (tambah 1 ke keranjang)
-    if (!isLongPressRef.current) {
-      if (product.stock > 0) {
-        addToCart(product, 1);
-      }
+
+    if (isLongPressRef.current) {
+      isLongPressRef.current = false;
+      return;
+    }
+
+    const duration = Date.now() - pointerDownTimeRef.current;
+    // Tap biasa (< 450ms) -> masukkan tepat 1 barang ke keranjang
+    if (duration < 450 && product.stock > 0) {
+      addToCart(product, 1);
     }
   };
 
-  const handleTouchMove = () => {
-    // Jika jari bergeser (scroll layar), batalkan long press
+  const handlePointerCancel = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    isLongPressRef.current = false;
   };
 
   const handleFloatingQtyConfirm = (newQty: number) => {
@@ -94,26 +99,15 @@ export const PosCheckout: React.FC = () => {
 
   return (
     <div>
-      {/* Kasir Pintar Header */}
+      {/* Kasir Pintar Header Ramping (Tanpa sidebar, rating, atau titik 3) */}
       <div className="kp-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button type="button" className="kp-icon-btn">
-            <Menu size={22} />
-          </button>
-          <span className="kp-header-title">NEW TRANSACTION</span>
-        </div>
-
-        <div className="kp-header-actions">
-          <button type="button" className="kp-circle-badge-btn" title="Favorit">
-            <Star size={18} fill="#FFFFFF" />
-          </button>
-          <button type="button" className="kp-icon-btn">
-            <MoreVertical size={20} />
-          </button>
-        </div>
+        <span className="kp-header-title">NEW TRANSACTION</span>
+        <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: 600 }}>
+          {storeProfile.name}
+        </span>
       </div>
 
-      {/* Subbar: Search, Add, Barcode, Category Filter */}
+      {/* Subbar: Search, Add, Category Filter (Tanpa scan QR code) */}
       <div className="kp-subbar">
         <div className="kp-subbar-icons">
           <button
@@ -132,28 +126,23 @@ export const PosCheckout: React.FC = () => {
           >
             <Plus size={24} />
           </button>
-          <button type="button" className="kp-icon-btn" title="Barcode Scan">
-            <QrCode size={22} />
-          </button>
         </div>
 
         {/* Dropdown Kategori 'All item' */}
-        <div style={{ position: 'relative' }}>
-          <select
-            className="kp-dropdown-pill"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            {categories.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          className="kp-dropdown-pill"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Input Pencarian Cepat (Bisa Ditampilkan Saat Icon Search Diklik) */}
+      {/* Input Pencarian Cepat */}
       {isSearchOpen && (
         <div className="kp-search-input-wrapper">
           <Search size={20} color="var(--primary)" />
@@ -177,7 +166,7 @@ export const PosCheckout: React.FC = () => {
         </div>
       )}
 
-      {/* Keterangan Tip Ramah Lansia */}
+      {/* Hint Teks Ramping */}
       <div
         style={{
           padding: '6px 4px',
@@ -198,7 +187,6 @@ export const PosCheckout: React.FC = () => {
           const cartItem = cart.find((c) => c.product.id === product.id);
           const isOutOfStock = product.stock <= 0;
 
-          // Ambil 2 huruf inisial produk
           const initials = product.name
             .split(' ')
             .filter(Boolean)
@@ -210,15 +198,11 @@ export const PosCheckout: React.FC = () => {
             <div
               key={product.id}
               className="kp-product-item"
-              onMouseDown={() => handleTouchStart(product)}
-              onMouseUp={() => handleTouchEnd(product)}
-              onMouseLeave={handleTouchMove}
-              onTouchStart={() => handleTouchStart(product)}
-              onTouchEnd={() => handleTouchEnd(product)}
-              onTouchMove={handleTouchMove}
+              onPointerDown={(e) => handlePointerDown(e, product)}
+              onPointerUp={() => handlePointerUp(product)}
+              onPointerCancel={handlePointerCancel}
             >
               <div className="kp-product-left">
-                {/* Kotak Inisial Produk (persis avatar 'KA' di screenshot Kasir Pintar) */}
                 <div className="kp-avatar-box">{initials || 'PR'}</div>
 
                 <div className="kp-product-details">
@@ -232,7 +216,7 @@ export const PosCheckout: React.FC = () => {
                 </div>
               </div>
 
-              {/* Indikator Keranjang jika item sudah dipilih */}
+              {/* Indikator Keranjang */}
               {cartItem && (
                 <div className="kp-cart-counter-pill">{cartItem.qty}</div>
               )}
@@ -241,7 +225,7 @@ export const PosCheckout: React.FC = () => {
         })}
       </div>
 
-      {/* Floating Shopping Bag Button di Pojok Kanan Bawah (Screenshot 5 Style) */}
+      {/* Floating Shopping Bag Button di Pojok Kanan Bawah */}
       {cart.length > 0 && (
         <button
           type="button"
@@ -264,7 +248,7 @@ export const PosCheckout: React.FC = () => {
         />
       )}
 
-      {/* Slim Cart Drawer (Screenshot 4 Style) */}
+      {/* Slim Cart Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -286,7 +270,7 @@ export const PosCheckout: React.FC = () => {
         />
       )}
 
-      {/* Success Transaction & Print Receipt Modal (Screenshot 1 & 3 Style) */}
+      {/* Success Transaction & Print Receipt Modal */}
       {completedTransaction && (
         <ReceiptModal
           transaction={completedTransaction}

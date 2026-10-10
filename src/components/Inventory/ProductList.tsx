@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Package,
   Plus,
   ArrowDownUp,
   History,
   Search,
   Edit2,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { db } from '../../db/database';
 import type { Product } from '../../types';
@@ -19,7 +19,8 @@ import { StockHistoryView } from './StockHistoryView';
 export const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All item');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false);
@@ -36,18 +37,17 @@ export const ProductList: React.FC = () => {
     loadProducts();
   }, []);
 
-  const categories = ['Semua', ...Array.from(new Set(products.map((p) => p.category)))];
+  const rawCategories = Array.from(new Set(products.map((p) => p.category)));
+  const categories = ['All item', ...rawCategories];
 
   const filtered = products.filter((p) => {
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (p.barcode && p.barcode.includes(searchQuery));
-    const matchesCategory = selectedCategory === 'Semua' || p.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All item' || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Statistik inventori
-  const totalItemsCount = products.length;
   const totalInventoryCapital = products.reduce((acc, p) => acc + p.stock * p.buyPrice, 0);
   const lowStockProducts = products.filter((p) => p.stock <= p.minStock);
 
@@ -60,234 +60,280 @@ export const ProductList: React.FC = () => {
 
   return (
     <div>
-      {/* Kartu Ringkasan Stok & Modal Toko */}
-      <div className="stat-grid">
-        <div className="stat-card blue">
-          <div className="stat-label">Total Jenis Barang</div>
-          <div className="stat-value">{totalItemsCount} Macam</div>
-          <div className="stat-subtext">Produk terdaftar di toko</div>
+      {/* Kasir Pintar Style Header */}
+      <div className="kp-header">
+        <span className="kp-header-title">MANAJEMEN BARANG</span>
+        <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: 600 }}>
+          {products.length} Barang
+        </span>
+      </div>
+
+      {/* Subbar: Search, Add, Restock, Category Filter */}
+      <div className="kp-subbar">
+        <div className="kp-subbar-icons">
+          <button
+            type="button"
+            className="kp-icon-btn"
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+            title="Cari Produk"
+          >
+            <Search size={22} />
+          </button>
+          <button
+            type="button"
+            className="kp-icon-btn"
+            onClick={() => {
+              setEditingProduct(null);
+              setIsFormOpen(true);
+            }}
+            title="Tambah Barang Baru"
+          >
+            <Plus size={24} />
+          </button>
+          <button
+            type="button"
+            className="kp-icon-btn"
+            onClick={() => {
+              setAdjustmentTargetProduct(null);
+              setIsAdjustmentOpen(true);
+            }}
+            title="Masuk / Keluar Stok"
+          >
+            <ArrowDownUp size={20} />
+          </button>
+          <button
+            type="button"
+            className="kp-icon-btn"
+            onClick={() => setIsHistoryOpen(true)}
+            title="Riwayat Stok"
+          >
+            <History size={20} />
+          </button>
         </div>
 
-        <div className="stat-card purple">
-          <div className="stat-label">Total Nilai Modal Stok</div>
-          <div className="stat-value">{formatRupiah(totalInventoryCapital)}</div>
-          <div className="stat-subtext">Modal barang fisik di gudang & toko</div>
-        </div>
+        {/* Dropdown Kategori 'All item' */}
+        <select
+          className="kp-dropdown-pill"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        <div className={`stat-card ${lowStockProducts.length > 0 ? 'amber' : 'green'}`}>
-          <div className="stat-label">Stok Menipis / Habis</div>
-          <div className="stat-value" style={{ color: lowStockProducts.length > 0 ? '#b45309' : '#15803d' }}>
-            {lowStockProducts.length} Produk
+      {/* Input Pencarian Cepat */}
+      {isSearchOpen && (
+        <div className="kp-search-input-wrapper" style={{ margin: '10px 0' }}>
+          <Search size={20} color="var(--primary)" />
+          <input
+            type="text"
+            className="kp-search-input"
+            placeholder="Cari nama barang atau barcode..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            autoFocus
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Ringkasan Nilai Modal Ramping Kasir Pintar */}
+      <div style={{ padding: '0 16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '8px',
+          margin: '12px 0 10px 0'
+        }}
+      >
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #E2E8F0',
+            borderRadius: '8px',
+            padding: '10px 12px'
+          }}
+        >
+          <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 700 }}>
+            MODAL STOK TOKO
+          </span>
+          <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--primary)', marginTop: '2px' }}>
+            {formatRupiah(totalInventoryCapital)}
           </div>
-          <div className="stat-subtext">
-            {lowStockProducts.length > 0 ? 'Perlu kulakan / restock segera' : 'Semua stok aman'}
+        </div>
+
+        <div
+          style={{
+            background: lowStockProducts.length > 0 ? '#FFFBEB' : '#FFFFFF',
+            border: `1px solid ${lowStockProducts.length > 0 ? '#FDE68A' : '#E2E8F0'}`,
+            borderRadius: '8px',
+            padding: '10px 12px'
+          }}
+        >
+          <span
+            style={{
+              fontSize: '0.72rem',
+              color: lowStockProducts.length > 0 ? '#B45309' : '#64748B',
+              fontWeight: 700
+            }}
+          >
+            STOK MENIPIS
+          </span>
+          <div
+            style={{
+              fontSize: '1.05rem',
+              fontWeight: 800,
+              color: lowStockProducts.length > 0 ? '#B45309' : '#10B981',
+              marginTop: '2px'
+            }}
+          >
+            {lowStockProducts.length} Produk
           </div>
         </div>
       </div>
 
-      {/* Tombol Aksi Utama */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginBottom: '20px' }}>
+      {/* Tombol Aksi Cepat Tambah & Kelola Stok */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
         <button
           type="button"
+          className="kp-btn-primary"
+          style={{ padding: '10px', fontSize: '0.88rem' }}
           onClick={() => {
             setEditingProduct(null);
             setIsFormOpen(true);
           }}
-          className="btn btn-primary btn-lg"
         >
-          <Plus size={24} />
-          <span>Tambah Barang</span>
+          <Plus size={18} />
+          <span>+ Tambah Barang</span>
         </button>
 
         <button
           type="button"
+          className="kp-btn-outline"
+          style={{ padding: '10px', fontSize: '0.88rem', justifyContent: 'center' }}
           onClick={() => {
             setAdjustmentTargetProduct(null);
             setIsAdjustmentOpen(true);
           }}
-          className="btn btn-success btn-lg"
         >
-          <ArrowDownUp size={24} />
+          <ArrowDownUp size={18} />
           <span>Masuk / Keluar Stok</span>
         </button>
-
-        <button
-          type="button"
-          onClick={() => setIsHistoryOpen(true)}
-          className="btn btn-outline btn-lg"
-        >
-          <History size={24} />
-          <span>Riwayat Mutasi Stok</span>
-        </button>
       </div>
 
-      {/* Pencarian & Filter Kategori */}
-      <div className="search-bar-wrapper">
-        <Search className="search-bar-icon" size={26} />
-        <input
-          type="text"
-          className="search-bar-input"
-          placeholder="Cari nama barang atau barcode..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      <div className="category-scroll">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Daftar Produk */}
+      {/* Daftar Produk Ramping Gaya Kasir Pintar */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-          <Package size={56} style={{ opacity: 0.3, marginBottom: '12px' }} />
-          <h3>Tidak ada barang yang cocok</h3>
+        <div style={{ textAlign: 'center', padding: '40px 16px', color: '#94a3b8' }}>
+          <h3>Barang tidak ditemukan</h3>
+          <p style={{ marginTop: '6px' }}>Coba ubah kata kunci atau pilih All item.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="kp-product-list">
           {filtered.map((item) => {
             const isLow = item.stock <= item.minStock;
             const profit = item.sellPrice - item.buyPrice;
-            const itemCapital = item.stock * item.buyPrice;
+
+            const initials = item.name
+              .split(' ')
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((w) => w[0].toUpperCase())
+              .join('');
 
             return (
               <div
                 key={item.id}
-                className="card"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  borderLeft: isLow ? '6px solid #f59e0b' : '6px solid #10b981'
-                }}
+                className="kp-product-item"
+                style={{ flexDirection: 'column', alignItems: 'stretch', gap: '8px' }}
               >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="kp-product-left">
+                    <div className="kp-avatar-box">{initials || 'PR'}</div>
+                    <div className="kp-product-details">
+                      <div className="kp-product-name">{item.name}</div>
+                      <div className="kp-product-price">
+                        Jual: <b style={{ color: 'var(--primary)' }}>{formatRupiah(item.sellPrice)}</b> • Modal:{' '}
+                        {formatRupiah(item.buyPrice)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`stock-pill ${
+                      item.stock === 0 ? 'empty' : isLow ? 'low' : 'normal'
+                    }`}
+                    style={{ fontSize: '0.78rem', padding: '3px 8px' }}
+                  >
+                    {item.stock === 0 ? 'Habis' : `Sisa ${item.stock} ${item.unit}`}
+                  </span>
+                </div>
+
+                {/* Baris Laba & Tombol Tindakan */}
                 <div
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    flexWrap: 'wrap',
-                    gap: '8px'
+                    alignItems: 'center',
+                    paddingTop: '6px',
+                    borderTop: '1px dashed #edf2f7'
                   }}
                 >
-                  <div>
-                    <span className="product-badge-category">{item.category}</span>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
-                      {item.name}
-                    </h3>
-                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                      Satuan: <b>{item.unit}</b> {item.barcode ? `• Barcode: ${item.barcode}` : ''}
-                    </div>
-                  </div>
+                  <span style={{ fontSize: '0.78rem', color: '#15803D', fontWeight: 700 }}>
+                    Laba: +{formatRupiah(profit)} / {item.unit}
+                  </span>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <span
-                      className={`stock-pill ${
-                        item.stock === 0 ? 'empty' : isLow ? 'low' : 'normal'
-                      }`}
-                      style={{ fontSize: '0.95rem', padding: '6px 14px' }}
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdjustmentTargetProduct(item);
+                        setIsAdjustmentOpen(true);
+                      }}
+                      className="kp-icon-btn"
+                      title="Masuk / Keluar Stok"
                     >
-                      {item.stock === 0
-                        ? 'Stok Habis'
-                        : isLow
-                        ? `Menipis: ${item.stock} ${item.unit}`
-                        : `Stok: ${item.stock} ${item.unit}`}
-                    </span>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
-                      Nilai Modal: <b>{formatRupiah(itemCapital)}</b>
-                    </div>
+                      <ArrowDownUp size={18} color="var(--primary)" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingProduct(item);
+                        setIsFormOpen(true);
+                      }}
+                      className="kp-icon-btn"
+                      title="Ubah Data"
+                    >
+                      <Edit2 size={18} color="#475569" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteCandidate(item)}
+                      className="kp-icon-btn"
+                      title="Hapus Barang"
+                    >
+                      <Trash2 size={18} color="#DC2626" />
+                    </button>
                   </div>
-                </div>
-
-                {/* Baris Harga & Laba */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                    gap: '8px',
-                    background: '#f8fafc',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #e2e8f0'
-                  }}
-                >
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>
-                      MODAL (BELI)
-                    </span>
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: '#475569' }}>
-                      {formatRupiah(item.buyPrice)}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>
-                      HARGA JUAL
-                    </span>
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: '#1e40af' }}>
-                      {formatRupiah(item.sellPrice)}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>
-                      KEUNTUNGAN / ITEM
-                    </span>
-                    <div style={{ fontSize: '1rem', fontWeight: 800, color: '#15803d' }}>
-                      +{formatRupiah(profit)}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tombol Aksi per Barang */}
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAdjustmentTargetProduct(item);
-                      setIsAdjustmentOpen(true);
-                    }}
-                    className="btn btn-outline btn-sm"
-                    style={{ borderColor: '#3b82f6', color: '#1d4ed8' }}
-                  >
-                    <ArrowDownUp size={18} />
-                    <span>Kelola Stok</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingProduct(item);
-                      setIsFormOpen(true);
-                    }}
-                    className="btn btn-outline btn-sm"
-                  >
-                    <Edit2 size={18} />
-                    <span>Ubah</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setDeleteCandidate(item)}
-                    className="btn btn-outline btn-sm"
-                    style={{ borderColor: '#fca5a5', color: '#dc2626' }}
-                  >
-                    <Trash2 size={18} />
-                    <span>Hapus</span>
-                  </button>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+      </div>
 
       {/* Modal Tambah/Edit Produk */}
       {isFormOpen && (
@@ -317,24 +363,21 @@ export const ProductList: React.FC = () => {
       {/* Modal Riwayat Stok */}
       {isHistoryOpen && <StockHistoryView onClose={() => setIsHistoryOpen(false)} />}
 
-      {/* Dialog Konfirmasi Hapus Ramah Lansia */}
+      {/* Konfirmasi Hapus */}
       {deleteCandidate && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '440px' }}>
-            <div className="modal-header" style={{ background: '#fef2f2' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <AlertTriangle size={26} color="#dc2626" />
-                <h3 className="modal-title" style={{ color: '#991b1b' }}>
-                  Hapus Barang Ini?
+          <div className="modal-content" style={{ maxWidth: '380px' }}>
+            <div className="modal-header" style={{ background: '#FEF2F2' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertTriangle size={22} color="#DC2626" />
+                <h3 className="modal-title" style={{ color: '#991B1B', fontSize: '1.1rem' }}>
+                  Hapus Barang?
                 </h3>
               </div>
             </div>
             <div className="modal-body">
-              <p style={{ fontSize: '1.05rem', lineHeight: 1.6 }}>
-                Apakah Anda yakin ingin menghapus barang <b>"{deleteCandidate.name}"</b>?
-              </p>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '8px' }}>
-                Barang yang dihapus tidak akan muncul lagi di kasir.
+              <p style={{ fontSize: '0.95rem' }}>
+                Yakin ingin menghapus <b>"{deleteCandidate.name}"</b>?
               </p>
             </div>
             <div className="modal-footer">
@@ -350,7 +393,7 @@ export const ProductList: React.FC = () => {
                 onClick={() => handleDeleteProduct(deleteCandidate.id)}
                 className="btn btn-danger"
               >
-                Ya, Hapus Barang
+                Hapus
               </button>
             </div>
           </div>

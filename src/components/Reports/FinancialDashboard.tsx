@@ -117,10 +117,11 @@ export const FinancialDashboard: React.FC = () => {
   return (
     <div>
       {/* Kasir Pintar Report Header (Screenshot 2 Style) */}
-      <div className="kp-report-header">
-        <span>Sales Summary Report</span>
+      <div className="kp-header">
+        <span className="kp-header-title">SALES SUMMARY REPORT</span>
       </div>
 
+      <div style={{ padding: '12px 16px' }}>
       {/* Dropdown Tanggal Pill: [ Today ▼ ] */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="kp-date-picker-pill" style={{ flex: 1, maxWidth: '240px', marginBottom: '16px' }}>
@@ -429,6 +430,7 @@ export const FinancialDashboard: React.FC = () => {
             ))}
           </div>
         )}
+      </div>
       </div>
 
       {/* Modal Preview Struk */}

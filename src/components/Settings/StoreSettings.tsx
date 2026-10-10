@@ -35,7 +35,6 @@ export const StoreSettings: React.FC = () => {
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  // Backup seluruh data database lokal ke file JSON
   const handleExportBackup = async () => {
     try {
       const [products, stockMovements, transactions, expenses] = await Promise.all([
@@ -63,14 +62,13 @@ export const StoreSettings: React.FC = () => {
       downloadAnchor.click();
       downloadAnchor.remove();
 
-      setStatusMsg('File cadangan (backup) berhasil diunduh ke perangkat Anda!');
+      setStatusMsg('File cadangan (backup) berhasil diunduh ke HP/perangkat Anda!');
     } catch (err) {
       console.error(err);
       setStatusMsg('Gagal membuat file cadangan.');
     }
   };
 
-  // Pulihkan data dari file JSON
   const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -80,7 +78,6 @@ export const StoreSettings: React.FC = () => {
       try {
         const json = JSON.parse(event.target?.result as string);
         if (json.products && Array.isArray(json.products)) {
-          // Bersihkan dan masukkan ulang
           await db.transaction('rw', db.products, db.stockMovements, db.transactions, db.expenses, async () => {
             await db.products.clear();
             await db.stockMovements.clear();
@@ -110,7 +107,6 @@ export const StoreSettings: React.FC = () => {
     reader.readAsText(file);
   };
 
-  // Reset database ke data contoh demo awal
   const handleResetDemoData = async () => {
     if (window.confirm('Reset data akan mengganti data dengan contoh produk Toko Bahan Kue & Plastik. Lanjutkan?')) {
       await db.products.clear();
@@ -126,172 +122,226 @@ export const StoreSettings: React.FC = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>
-          Pengaturan Toko & Tampilan
-        </h2>
-        <p style={{ fontSize: '0.85rem', color: '#64748b' }}>
-          Ubah identitas toko untuk struk belanja, ukuran tulisan, dan cadangan data
-        </p>
+      {/* Kasir Pintar Header */}
+      <div className="kp-header">
+        <span className="kp-header-title">PENGATURAN TOKO</span>
+        <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: 600 }}>
+          Profil & Data
+        </span>
       </div>
 
-      {statusMsg && (
-        <div className="alert alert-success" style={{ marginBottom: '18px' }}>
-          <Check size={20} />
-          <span>{statusMsg}</span>
-        </div>
-      )}
-
-      {/* Pengaturan Ukuran Teks (Senior-Friendly Accessibility) */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <Type size={24} color="#1e40af" />
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Ukuran Huruf Layar (Mode Lansia)</h3>
-        </div>
-        <p style={{ fontSize: '0.9rem', color: '#475569', marginBottom: '16px' }}>
-          Pilih ukuran huruf yang paling nyaman untuk mata Anda saat membaca layar kasir:
-        </p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
-          <button
-            type="button"
-            className={`btn ${fontSizeMode === 'normal' ? 'btn-primary' : 'btn-outline'}`}
-            onClick={() => setFontSizeMode('normal')}
+      <div style={{ padding: '12px 16px' }}>
+        {statusMsg && (
+          <div
+            style={{
+              padding: '10px 14px',
+              borderRadius: '8px',
+              background: '#ECFDF5',
+              border: '1px solid #A7F3D0',
+              color: 'var(--primary)',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              marginBottom: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
           >
-            Huruf Normal
-          </button>
-          <button
-            type="button"
-            className={`btn ${fontSizeMode === 'large' ? 'btn-primary' : 'btn-outline'}`}
-            onClick={() => setFontSizeMode('large')}
-          >
-            Huruf Besar (A+)
-          </button>
-          <button
-            type="button"
-            className={`btn ${fontSizeMode === 'extralarge' ? 'btn-primary' : 'btn-outline'}`}
-            onClick={() => setFontSizeMode('extralarge')}
-          >
-            Sangat Besar (A++)
-          </button>
-        </div>
-      </div>
+            <Check size={18} />
+            <span>{statusMsg}</span>
+          </div>
+        )}
 
-      {/* Profil Toko & Struk Belanja */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <Store size={24} color="#1e40af" />
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Informasi Toko (Tampil di Struk)</h3>
+        {/* Pengaturan Ukuran Huruf */}
+        <div className="card" style={{ marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Type size={20} color="var(--primary)" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 800 }}>Ukuran Huruf Layar</h3>
+          </div>
+          <p style={{ fontSize: '0.82rem', color: '#64748B', marginBottom: '12px' }}>
+            Sesuaikan ukuran huruf agar mudah dan nyaman dibaca:
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+            <button
+              type="button"
+              className={`kp-btn-outline ${fontSizeMode === 'normal' ? 'active' : ''}`}
+              style={{
+                justifyContent: 'center',
+                padding: '8px',
+                fontSize: '0.85rem',
+                backgroundColor: fontSizeMode === 'normal' ? 'var(--primary)' : '#FFFFFF',
+                color: fontSizeMode === 'normal' ? '#FFFFFF' : 'var(--text-primary)'
+              }}
+              onClick={() => setFontSizeMode('normal')}
+            >
+              Normal
+            </button>
+            <button
+              type="button"
+              className={`kp-btn-outline ${fontSizeMode === 'large' ? 'active' : ''}`}
+              style={{
+                justifyContent: 'center',
+                padding: '8px',
+                fontSize: '0.85rem',
+                backgroundColor: fontSizeMode === 'large' ? 'var(--primary)' : '#FFFFFF',
+                color: fontSizeMode === 'large' ? '#FFFFFF' : 'var(--text-primary)'
+              }}
+              onClick={() => setFontSizeMode('large')}
+            >
+              Besar (A+)
+            </button>
+            <button
+              type="button"
+              className={`kp-btn-outline ${fontSizeMode === 'extralarge' ? 'active' : ''}`}
+              style={{
+                justifyContent: 'center',
+                padding: '8px',
+                fontSize: '0.85rem',
+                backgroundColor: fontSizeMode === 'extralarge' ? 'var(--primary)' : '#FFFFFF',
+                color: fontSizeMode === 'extralarge' ? '#FFFFFF' : 'var(--text-primary)'
+              }}
+              onClick={() => setFontSizeMode('extralarge')}
+            >
+              Sangat Besar
+            </button>
+          </div>
         </div>
 
-        <form onSubmit={handleSaveProfile}>
-          <div className="input-group">
-            <label className="input-label">Nama Toko:</label>
-            <input
-              type="text"
-              className="input-field"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+        {/* Profil Toko */}
+        <div className="card" style={{ marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <Store size={20} color="var(--primary)" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 800 }}>Identitas Toko & Struk</h3>
           </div>
 
-          <div className="input-group">
-            <label className="input-label">Slogan / Keterangan Toko:</label>
-            <input
-              type="text"
-              className="input-field"
-              value={tagline}
-              onChange={(e) => setTagline(e.target.value)}
-              placeholder="Contoh: Lengkap, Murah & Berkualitas"
-            />
-          </div>
+          <form onSubmit={handleSaveProfile}>
+            <div className="input-group">
+              <label className="input-label">Nama Toko:</label>
+              <input
+                type="text"
+                className="input-field"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="input-group">
-            <label className="input-label">Alamat Toko:</label>
-            <input
-              type="text"
-              className="input-field"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Jl. Pasar Baru No. 88"
-              required
-            />
-          </div>
+            <div className="input-group">
+              <label className="input-label">Slogan / Keterangan Toko:</label>
+              <input
+                type="text"
+                className="input-field"
+                value={tagline}
+                onChange={(e) => setTagline(e.target.value)}
+              />
+            </div>
 
-          <div className="input-group">
-            <label className="input-label">Nomor WhatsApp / Telepon Toko:</label>
-            <input
-              type="text"
-              className="input-field"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="0812-3456-7890"
-              required
-            />
-          </div>
+            <div className="input-group">
+              <label className="input-label">Alamat Toko:</label>
+              <input
+                type="text"
+                className="input-field"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="input-group">
-            <label className="input-label">Pesan Kaki Struk (Footer Nota):</label>
-            <textarea
-              className="textarea-field"
-              rows={2}
-              value={footerMessage}
-              onChange={(e) => setFooterMessage(e.target.value)}
-              placeholder="Pesan terima kasih di bagian bawah struk"
-            />
-          </div>
+            <div className="input-group">
+              <label className="input-label">Nomor WhatsApp Toko:</label>
+              <input
+                type="text"
+                className="input-field"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-lg"
-            style={{ width: '100%', maxWidth: '300px' }}
-          >
-            <Check size={22} />
-            {saveSuccess ? 'Berhasil Disimpan!' : 'Simpan Profil Toko'}
-          </button>
-        </form>
-      </div>
+            <div className="input-group">
+              <label className="input-label">Pesan Kaki Struk (Footer Nota):</label>
+              <textarea
+                className="textarea-field"
+                rows={2}
+                value={footerMessage}
+                onChange={(e) => setFooterMessage(e.target.value)}
+              />
+            </div>
 
-      {/* Keamanan & Cadangan Data Lokal (100% Offline) */}
-      <div className="card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <ShieldCheck size={24} color="#15803d" />
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>
-            Pencadangan Data Lokal (Offline Database)
-          </h3>
+            <button
+              type="submit"
+              className="kp-btn-primary"
+              style={{ width: '100%', marginTop: '4px' }}
+            >
+              <Check size={18} style={{ display: 'inline', marginRight: '4px' }} />
+              {saveSuccess ? 'Berhasil Disimpan!' : 'Simpan Profil Toko'}
+            </button>
+          </form>
         </div>
-        <p style={{ fontSize: '0.9rem', color: '#475569', marginBottom: '16px' }}>
-          Semua catatan toko tersimpan secara lokal dan aman di dalam perangkat Anda. Anda dapat
-          mengunduh file cadangan secara berkala agar catatan toko tidak hilang saat ganti perangkat.
-        </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '400px' }}>
-          <button type="button" onClick={handleExportBackup} className="btn btn-success btn-lg">
-            <Download size={22} />
-            <span>Cadangkan Data (Download Backup)</span>
-          </button>
+        {/* Cadangan Data Offline */}
+        <div className="card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <ShieldCheck size={20} color="var(--primary)" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 800 }}>Cadangan Data Offline</h3>
+          </div>
+          <p style={{ fontSize: '0.82rem', color: '#64748B', marginBottom: '14px' }}>
+            Data tersimpan 100% lokal di HP/perangkat. Cadangkan file secara berkala agar aman:
+          </p>
 
-          <label className="btn btn-outline btn-lg" style={{ cursor: 'pointer' }}>
-            <Upload size={22} />
-            <span>Pulihkan Data dari File Cadangan</span>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImportBackup}
-              style={{ display: 'none' }}
-            />
-          </label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={handleExportBackup}
+              className="kp-btn-primary"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+            >
+              <Download size={18} />
+              <span>Download File Cadangan (Backup)</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={handleResetDemoData}
-            className="btn btn-outline btn-sm"
-            style={{ color: '#b45309', borderColor: '#fde68a', marginTop: '10px' }}
-          >
-            <RefreshCcw size={18} />
-            <span>Reset ke Contoh Toko Bahan Kue & Plastik</span>
-          </button>
+            <label
+              className="kp-btn-outline"
+              style={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <Upload size={18} />
+              <span>Pulihkan Data dari File Cadangan</span>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportBackup}
+                style={{ display: 'none' }}
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={handleResetDemoData}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#B45309',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                marginTop: '10px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px'
+              }}
+            >
+              <RefreshCcw size={14} />
+              <span>Reset ke Contoh Toko Bahan Kue & Plastik</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

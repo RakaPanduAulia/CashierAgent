@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { initializeDatabase, db } from './db/database';
-import { Header } from './components/Layout/Header';
 import { BottomNav } from './components/Layout/BottomNav';
 import { PosCheckout } from './components/Cashier/PosCheckout';
 import { ProductList } from './components/Inventory/ProductList';
@@ -62,14 +61,7 @@ const MainApp: React.FC = () => {
 
   return (
     <div className="app-container">
-      {activeTab !== 'pos' && (
-        <Header
-          lowStockCount={lowStockProducts.length}
-          onOpenLowStock={() => setShowLowStockModal(true)}
-        />
-      )}
-
-      <main className="main-content">
+      <main className="main-content" style={{ padding: 0 }}>
         {activeTab === 'pos' && <PosCheckout />}
         {activeTab === 'inventory' && <ProductList />}
         {activeTab === 'reports' && <FinancialDashboard />}
