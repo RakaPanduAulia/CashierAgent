@@ -1005,3 +1005,126 @@ body {
   color: var(--text-muted);
 }
 
+/* ==========================================================================
+   SIDEBAR DRAWER (KASIR PINTAR STYLE - SCREENSHOT 1)
+   ========================================================================== */
+
+.kp-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 150;
+  animation: fadeIn 0.2s ease;
+}
+
+.kp-sidebar-drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 82%;
+  max-width: 320px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  animation: slideDrawer 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+@keyframes slideDrawer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.kp-sidebar-profile {
+  padding: 24px 18px 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.kp-sidebar-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kp-sidebar-name {
+  font-weight: 800;
+  font-size: calc(1.05rem * var(--font-scale));
+  color: #1E293B;
+  line-height: 1.2;
+}
+
+.kp-sidebar-role {
+  font-size: calc(0.82rem * var(--font-scale));
+  color: #64748B;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.kp-sidebar-banner {
+  background-color: #F0FDF4;
+  border: 1px solid #DCFCE7;
+  padding: 12px 18px;
+  margin: 12px 14px 6px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.kp-sidebar-menu-list {
+  flex: 1;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kp-sidebar-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+  width: 100%;
+}
+
+.kp-sidebar-menu-item:hover {
+  background-color: var(--primary-light);
+}
+
+.kp-sidebar-menu-item.active {
+  background-color: var(--primary-light);
+}
+
+.kp-sidebar-menu-text {
+  font-weight: 800;
+  font-size: calc(1rem * var(--font-scale));
+  color: #1E293B;
+}
+
+.kp-sidebar-menu-item.active .kp-sidebar-menu-text {
+  color: var(--primary);
+}
+
+.kp-sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid #F1F5F9;
+  font-size: 0.75rem;
+  color: #94A3B8;
+  display: flex;
+  justify-content: space-between;
+}
+
+

@@ -13,6 +13,21 @@ export interface Product {
   updatedAt: string;
 }
 
+export interface ProductCategory {
+  id?: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface Customer {
+  id?: number;
+  name: string;
+  phone: string;
+  address?: string;
+  notes?: string;
+  createdAt: string;
+}
+
 export type StockMovementType = 'IN' | 'OUT' | 'ADJUSTMENT' | 'SALE';
 
 export interface StockMovement {
@@ -23,16 +38,16 @@ export interface StockMovement {
   qty: number;
   previousStock: number;
   newStock: number;
-  pricePerUnit: number; // Harga beli/modal saat restock atau HPP
-  totalCost: number; // qty * pricePerUnit
-  reason: string; // contoh: "Kulakan Grosir", "Rusak / Bocor", "Expired", "Penjualan Kasir"
+  pricePerUnit: number;
+  totalCost: number;
+  reason: string;
   date: string;
 }
 
 export interface CartItem {
   product: Product;
   qty: number;
-  discount: number; // diskon per item (Rp)
+  discount: number;
   subtotal: number;
 }
 
@@ -41,12 +56,12 @@ export interface TransactionItem {
   productName: string;
   unit: string;
   qty: number;
-  buyPrice: number; // Modal barang saat transaksi
-  sellPrice: number; // Harga jual
+  buyPrice: number;
+  sellPrice: number;
   discount: number;
   subtotal: number;
-  costSubtotal: number; // qty * buyPrice
-  profitSubtotal: number; // subtotal - costSubtotal
+  costSubtotal: number;
+  profitSubtotal: number;
 }
 
 export interface Transaction {
@@ -58,8 +73,8 @@ export interface Transaction {
   subtotal: number;
   discount: number;
   grandTotal: number;
-  totalCost: number; // Total HPP / Modal
-  grossProfit: number; // grandTotal - totalCost
+  totalCost: number;
+  grossProfit: number;
   paymentMethod: 'CASH' | 'QRIS' | 'TRANSFER';
   amountPaid: number;
   change: number;
@@ -80,10 +95,12 @@ export interface Expense {
 export interface StoreProfile {
   name: string;
   tagline: string;
+  ownerName: string;
   address: string;
   phone: string;
   footerMessage: string;
   fontSizeMode: 'normal' | 'large' | 'extralarge';
 }
 
-export type NavigationTab = 'pos' | 'inventory' | 'reports' | 'expenses' | 'settings';
+export type NavigationTab = 'pos' | 'management' | 'reports' | 'settings';
+export type ManagementView = 'menu' | 'products' | 'categories' | 'customers';

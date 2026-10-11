@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { initializeDatabase, db } from './db/database';
 import { BottomNav } from './components/Layout/BottomNav';
+import { SidebarDrawer } from './components/Layout/SidebarDrawer';
 import { PosCheckout } from './components/Cashier/PosCheckout';
-import { ProductList } from './components/Inventory/ProductList';
+import { ManagementHub } from './components/Management/ManagementHub';
 import { FinancialDashboard } from './components/Reports/FinancialDashboard';
-import { ExpenseManager } from './components/Expenses/ExpenseManager';
 import { StoreSettings } from './components/Settings/StoreSettings';
 import { AlertCircle, X } from 'lucide-react';
 import type { Product } from './types';
@@ -14,6 +14,7 @@ const MainApp: React.FC = () => {
   const { activeTab, setActiveTab } = useStore();
   const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
   const [showLowStockModal, setShowLowStockModal] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -31,7 +32,6 @@ const MainApp: React.FC = () => {
     setLowStockProducts(low);
   };
 
-  // Re-check low stock when tab changes
   useEffect(() => {
     if (ready) {
       checkLowStock();
@@ -48,7 +48,7 @@ const MainApp: React.FC = () => {
           justifyContent: 'center',
           height: '100vh',
           background: '#f1f5f9',
-          color: '#1e3a8a',
+          color: 'var(--primary)',
           gap: '16px'
         }}
       >
@@ -61,11 +61,21 @@ const MainApp: React.FC = () => {
 
   return (
     <div className="app-container">
+      {/* Sidebar Drawer yang bisa dibuka dari Hamburger Menu ☰ */}
+      <SidebarDrawer
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onNavigate={(tab) => setActiveTab(tab)}
+      />
+
       <main className="main-content" style={{ padding: 0 }}>
-        {activeTab === 'pos' && <PosCheckout />}
-        {activeTab === 'inventory' && <ProductList />}
+        {activeTab === 'pos' && (
+          <PosCheckout onOpenSidebar={() => setIsSidebarOpen(true)} />
+        )}
+        {activeTab === 'management' && (
+          <ManagementHub onOpenSidebar={() => setIsSidebarOpen(true)} />
+        )}
         {activeTab === 'reports' && <FinancialDashboard />}
-        {activeTab === 'expenses' && <ExpenseManager />}
         {activeTab === 'settings' && <StoreSettings />}
       </main>
 
@@ -137,12 +147,12 @@ const MainApp: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setShowLowStockModal(false);
-                  setActiveTab('inventory');
+                  setActiveTab('management');
                 }}
                 className="btn btn-primary"
                 style={{ width: '100%' }}
               >
-                Buka Manajemen Stok & Kulakan
+                Buka Manajemen Produk & Stok
               </button>
             </div>
           </div>

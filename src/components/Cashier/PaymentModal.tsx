@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { X, Check, Banknote, QrCode, CreditCard, Tag } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Check, Banknote, QrCode, CreditCard, Tag, UserCheck } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { db } from '../../db/database';
-import type { Transaction, TransactionItem } from '../../types';
+import type { Transaction, TransactionItem, Customer } from '../../types';
 import { formatRupiah, generateInvoiceNumber } from '../../utils/formatters';
 
 interface PaymentModalProps {
@@ -16,9 +16,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onClose, onSuccess }
   const [amountPaid, setAmountPaid] = useState<number>(cartTotal.grandTotal);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [existingCustomers, setExistingCustomers] = useState<Customer[]>([]);
   const [discount, setDiscount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    db.customers.toArray().then((list) => setExistingCustomers(list));
+  }, []);
 
   const grandTotal = Math.max(0, cartTotal.grandTotal - discount);
   const change = Math.max(0, amountPaid - grandTotal);
@@ -87,6 +92,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onClose, onSuccess }
         customerName: customerName.trim() || undefined,
         customerPhone: customerPhone.trim() || undefined
       };
+
+      // Auto-catat customer baru jika belum terdaftar
+      if (customerName.trim() && customerPhone.trim()) {
+        const existing = await db.customers.where('phone').equals(customerPhone.trim()).first();
+        if (!existing) {
+          await db.customers.add({
+            name: customerName.trim(),
+            phone: customerPhone.trim(),
+            notes: 'Tersimpan otomatis saat transaksi',
+            createdAt: now
+          });
+        }
+      }
 
       // Simpan ke database IndexedDB
       const trxId = await db.transactions.add(newTransaction);
@@ -326,9 +344,62 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ onClose, onSuccess }
 
           {/* Info Pelanggan Opsional (Untuk kirim WhatsApp) */}
           <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: '14px', marginTop: '14px' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
-              Info Pelanggan (Opsional - untuk WhatsApp):
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '8px',
+                flexWrap: 'wrap',
+                gap: '6px'
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  color: '#475569',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <UserCheck size={16} color="var(--primary)" />
+                <span>Pelanggan (Kirim WA Struk):</span>
+              </div>
+
+              {existingCustomers.length > 0 && (
+                <select
+                  style={{
+                    fontSize: '0.78rem',
+                    padding: '4px 8px',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    background: '#f8fafc',
+                    color: '#334155',
+                    cursor: 'pointer'
+                  }}
+                  onChange={(e) => {
+                    const cust = existingCustomers.find((c) => String(c.id) === e.target.value);
+                    if (cust) {
+                      setCustomerName(cust.name);
+                      setCustomerPhone(cust.phone);
+                    }
+                  }}
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Pilih Pelanggan Terdaftar...
+                  </option>
+                  {existingCustomers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.phone})
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
                 <input

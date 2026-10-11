@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check, PackagePlus } from 'lucide-react';
 import type { Product } from '../../types';
 import { db } from '../../db/database';
@@ -10,14 +10,13 @@ interface ProductFormModalProps {
   onSaved: () => void;
 }
 
-const PRESET_CATEGORIES = [
+const DEFAULT_FALLBACK_CATEGORIES = [
   'Bahan Kue & Tepung',
   'Margarin & Cokelat',
   'Ragi & Pengembang',
   'Keju & Topping',
   'Plastik & Mika',
-  'Cup & Dus Kue',
-  'Lain-lain'
+  'Cup & Dus Kue'
 ];
 
 const PRESET_UNITS = ['pcs', 'kg', 'gram', 'pack', 'roll', 'dus', 'bal', 'kaleng', 'botol', 'sachet'];
@@ -25,9 +24,27 @@ const PRESET_UNITS = ['pcs', 'kg', 'gram', 'pack', 'roll', 'dus', 'bal', 'kaleng
 export const ProductFormModal: React.FC<ProductFormModalProps> = ({ product, onClose, onSaved }) => {
   const isEditing = !!product;
 
+  const [categoriesList, setCategoriesList] = useState<string[]>(DEFAULT_FALLBACK_CATEGORIES);
   const [name, setName] = useState(product?.name || '');
   const [category, setCategory] = useState(product?.category || 'Bahan Kue & Tepung');
   const [unit, setUnit] = useState(product?.unit || 'pcs');
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const dbCats = await db.categories.toArray();
+      const catNames = dbCats.map((c) => c.name);
+      const combined = Array.from(new Set([...catNames, ...DEFAULT_FALLBACK_CATEGORIES]));
+      if (product?.category && !combined.includes(product.category)) {
+        combined.push(product.category);
+      }
+      setCategoriesList(combined);
+      if (!product && combined.length > 0) {
+        setCategory(combined[0]);
+      }
+    };
+    fetchCategories();
+  }, [product]);
+
   const [buyPrice, setBuyPrice] = useState<number>(product?.buyPrice || 0);
   const [sellPrice, setSellPrice] = useState<number>(product?.sellPrice || 0);
   const [stock, setStock] = useState<number>(product?.stock || 0);
@@ -146,7 +163,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ product, onC
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  {PRESET_CATEGORIES.map((cat) => (
+                  {categoriesList.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>

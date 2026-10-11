@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, Package, TrendingUp, Wallet, Settings } from 'lucide-react';
+import { ShoppingCart, Layers, TrendingUp, Settings } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import type { NavigationTab } from '../../types';
 
@@ -14,19 +14,14 @@ export const BottomNav: React.FC = () => {
       badge: cart.length > 0 ? cart.reduce((a, b) => a + b.qty, 0) : undefined
     },
     {
-      id: 'inventory',
-      label: 'Barang',
-      icon: <Package size={22} />
+      id: 'management',
+      label: 'Management',
+      icon: <Layers size={22} />
     },
     {
       id: 'reports',
       label: 'Laporan',
       icon: <TrendingUp size={22} />
-    },
-    {
-      id: 'expenses',
-      label: 'Biaya',
-      icon: <Wallet size={22} />
     },
     {
       id: 'settings',
@@ -36,7 +31,7 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="kp-bottom-nav" aria-label="Navigasi Utama">
+    <nav className="kp-bottom-nav" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }} aria-label="Navigasi Utama">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (

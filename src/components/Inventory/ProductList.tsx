@@ -7,6 +7,7 @@ import {
   Edit2,
   Trash2,
   AlertTriangle,
+  ArrowLeft,
   X
 } from 'lucide-react';
 import { db } from '../../db/database';
@@ -16,7 +17,11 @@ import { ProductFormModal } from './ProductFormModal';
 import { StockAdjustmentModal } from './StockAdjustmentModal';
 import { StockHistoryView } from './StockHistoryView';
 
-export const ProductList: React.FC = () => {
+interface ProductListProps {
+  onBack?: () => void;
+}
+
+export const ProductList: React.FC<ProductListProps> = ({ onBack }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -28,16 +33,22 @@ export const ProductList: React.FC = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [deleteCandidate, setDeleteCandidate] = useState<Product | null>(null);
 
+  const [dbCategoryNames, setDbCategoryNames] = useState<string[]>([]);
+
   const loadProducts = async () => {
-    const list = await db.products.toArray();
+    const [list, cats] = await Promise.all([
+      db.products.toArray(),
+      db.categories.toArray()
+    ]);
     setProducts(list);
+    setDbCategoryNames(cats.map((c) => c.name));
   };
 
   useEffect(() => {
     loadProducts();
   }, []);
 
-  const rawCategories = Array.from(new Set(products.map((p) => p.category)));
+  const rawCategories = Array.from(new Set([...dbCategoryNames, ...products.map((p) => p.category)]));
   const categories = ['All item', ...rawCategories];
 
   const filtered = products.filter((p) => {
@@ -62,7 +73,14 @@ export const ProductList: React.FC = () => {
     <div>
       {/* Kasir Pintar Style Header */}
       <div className="kp-header">
-        <span className="kp-header-title">MANAJEMEN BARANG</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {onBack && (
+            <button type="button" className="kp-icon-btn" onClick={onBack}>
+              <ArrowLeft size={24} />
+            </button>
+          )}
+          <span className="kp-header-title">PRODUCT OR SERVICE</span>
+        </div>
         <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: 600 }}>
           {products.length} Barang
         </span>

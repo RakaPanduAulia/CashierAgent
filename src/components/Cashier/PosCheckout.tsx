@@ -3,6 +3,7 @@ import {
   Search,
   Plus,
   ShoppingBag,
+  Menu,
   X
 } from 'lucide-react';
 import { db } from '../../db/database';
@@ -15,7 +16,11 @@ import { PaymentModal } from './PaymentModal';
 import { ReceiptModal } from './ReceiptModal';
 import { ProductFormModal } from '../Inventory/ProductFormModal';
 
-export const PosCheckout: React.FC = () => {
+interface PosCheckoutProps {
+  onOpenSidebar: () => void;
+}
+
+export const PosCheckout: React.FC<PosCheckoutProps> = ({ onOpenSidebar }) => {
   const { storeProfile, cart, addToCart, updateCartQty, cartTotal } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,16 +37,22 @@ export const PosCheckout: React.FC = () => {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLongPressRef = useRef(false);
 
+  const [dbCategoryNames, setDbCategoryNames] = useState<string[]>([]);
+
   const loadProducts = async () => {
-    const list = await db.products.toArray();
+    const [list, cats] = await Promise.all([
+      db.products.toArray(),
+      db.categories.toArray()
+    ]);
     setProducts(list);
+    setDbCategoryNames(cats.map((c) => c.name));
   };
 
   useEffect(() => {
     loadProducts();
   }, [completedTransaction]);
 
-  const rawCategories = Array.from(new Set(products.map((p) => p.category)));
+  const rawCategories = Array.from(new Set([...dbCategoryNames, ...products.map((p) => p.category)]));
   const categories = ['All item', ...rawCategories];
 
   const filteredProducts = products.filter((p) => {
@@ -99,9 +110,19 @@ export const PosCheckout: React.FC = () => {
 
   return (
     <div>
-      {/* Kasir Pintar Header Ramping (Tanpa sidebar, rating, atau titik 3) */}
+      {/* Kasir Pintar Header Ramping dengan Hamburger Menu */}
       <div className="kp-header">
-        <span className="kp-header-title">NEW TRANSACTION</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            type="button"
+            className="kp-icon-btn"
+            onClick={onOpenSidebar}
+            title="Buka Menu"
+          >
+            <Menu size={24} />
+          </button>
+          <span className="kp-header-title">NEW TRANSACTION</span>
+        </div>
         <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: 600 }}>
           {storeProfile.name}
         </span>
